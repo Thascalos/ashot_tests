@@ -1,5 +1,6 @@
 package helpers;
 
+import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebDriverRunner;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
@@ -8,6 +9,8 @@ import ru.yandex.qatools.ashot.AShot;
 import ru.yandex.qatools.ashot.Screenshot;
 import ru.yandex.qatools.ashot.comparison.ImageDiff;
 import ru.yandex.qatools.ashot.comparison.ImageDiffer;
+import ru.yandex.qatools.ashot.coordinates.WebDriverCoordsProvider;
+import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -25,6 +28,21 @@ public class ScreenshotComparisonHelper {
         String testPath = pathToResources + getTestPath();
 
         Screenshot takeScreenshot = new AShot().takeScreenshot(WebDriverRunner.getWebDriver());
+
+        savePng(takeScreenshot.getImage(), testPath + "actual.png");
+
+        return takeScreenshot;
+    }
+
+    public Screenshot takeActualScreenshot(SelenideElement selenideElement) {
+        String testPath = pathToResources + getTestPath();
+
+        Screenshot takeScreenshot = new AShot()
+                .coordsProvider(new WebDriverCoordsProvider())
+//                .addIgnoredArea() // todo Домашнее задание
+//                .addIgnoredElement() // todo Домашнее задание
+                .shootingStrategy(ShootingStrategies.simple())
+                .takeScreenshot(WebDriverRunner.getWebDriver(), selenideElement);
 
         savePng(takeScreenshot.getImage(), testPath + "actual.png");
 
