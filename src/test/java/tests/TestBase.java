@@ -28,7 +28,7 @@ public class TestBase {
     @Step("Tests setup")
     public static void beforeAll() {
         addListener("AllureSelenide", new AllureSelenide().screenshots(true).savePageSource(true));
-        Configuration.startMaximized = true;
+//        Configuration.startMaximized = true;
     }
 
     @BeforeEach

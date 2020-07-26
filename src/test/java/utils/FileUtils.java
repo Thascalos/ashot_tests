@@ -4,9 +4,11 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -50,7 +52,25 @@ public class FileUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    public static BufferedImage getImage(String imagePath) {
+        try {
+            return ImageIO.read(new File(imagePath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static InputStream getInputStream(String filePath) {
+        Path path = Paths.get(filePath);
+        try {
+            return  Files.newInputStream(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private String resourcePath(String file) {
