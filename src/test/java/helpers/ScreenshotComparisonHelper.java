@@ -4,24 +4,20 @@ import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebDriverRunner;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
-import org.junit.jupiter.api.TestInfo;
+import org.openqa.selenium.By;
 import ru.yandex.qatools.ashot.AShot;
 import ru.yandex.qatools.ashot.Screenshot;
 import ru.yandex.qatools.ashot.comparison.ImageDiff;
 import ru.yandex.qatools.ashot.comparison.ImageDiffer;
+import ru.yandex.qatools.ashot.coordinates.Coords;
 import ru.yandex.qatools.ashot.coordinates.WebDriverCoordsProvider;
 import ru.yandex.qatools.ashot.shooting.ShootingStrategies;
 
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.io.IOException;
-
-import static tests.TestBase.getTestInfo;
 import static tests.TestBase.getTestPath;
 import static utils.FileUtils.*;
 
 public class ScreenshotComparisonHelper {
-    private String pathToResources = "src/test/resources/screenshots/";
+    private final String pathToResources = "src/test/resources/screenshots/";
 
 
     public Screenshot takeActualScreenshot() {
@@ -39,10 +35,36 @@ public class ScreenshotComparisonHelper {
 
         Screenshot takeScreenshot = new AShot()
                 .coordsProvider(new WebDriverCoordsProvider())
-//                .addIgnoredArea() // todo Домашнее задание
-//                .addIgnoredElement() // todo Домашнее задание
                 .shootingStrategy(ShootingStrategies.simple())
                 .takeScreenshot(WebDriverRunner.getWebDriver(), selenideElement);
+
+        savePng(takeScreenshot.getImage(), testPath + "actual.png");
+
+        return takeScreenshot;
+    }
+
+    public Screenshot takeActualScreenshot(Coords area) {
+        String testPath = pathToResources + getTestPath();
+
+        Screenshot takeScreenshot = new AShot()
+            .coordsProvider(new WebDriverCoordsProvider())
+            .addIgnoredArea(area) // todo Домашнее задание
+            .shootingStrategy(ShootingStrategies.simple())
+            .takeScreenshot(WebDriverRunner.getWebDriver());
+
+        savePng(takeScreenshot.getImage(), testPath + "actual.png");
+
+        return takeScreenshot;
+    }
+
+    public Screenshot takeActualScreenshot(String element) {
+        String testPath = pathToResources + getTestPath();
+
+        Screenshot takeScreenshot = new AShot()
+                .coordsProvider(new WebDriverCoordsProvider())
+                .addIgnoredElement(By.cssSelector(element)) // todo Домашнее задание
+                .shootingStrategy(ShootingStrategies.simple())
+                .takeScreenshot(WebDriverRunner.getWebDriver());
 
         savePng(takeScreenshot.getImage(), testPath + "actual.png");
 
@@ -67,9 +89,8 @@ public class ScreenshotComparisonHelper {
         ImageDiff diff = new ImageDiffer().makeDiff(expectedImage, actualImage).withDiffSizeTrigger(diffSizeTrigger);
 
         if (diff.hasDiff()) {
-            Allure.addAttachment("Difference", getInputStream(testPath + "difference.png"));
-
             savePng(diff.getMarkedImage(), testPath + "difference.png");
+            Allure.addAttachment("Difference", getInputStream(testPath + "difference.png"));
         }
 
         return diff;
